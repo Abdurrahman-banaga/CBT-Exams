@@ -1,0 +1,479 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>CBT Practice | Student Portal</title>
+  <style>
+    :root{
+      --bg:#0f172a;          /* slate-900 */
+      --panel:#111827;       /* gray-900 */
+      --muted:#1f2937;       /* gray-800 */
+      --text:#e5e7eb;        /* gray-200 */
+      --sub:#9ca3af;         /* gray-400 */
+      --brand:#22d3ee;       /* cyan-400 */
+      --brand-2:#60a5fa;     /* blue-400 */
+      --ok:#34d399;          /* green-400 */
+      --bad:#f87171;         /* red-400 */
+      --warn:#f59e0b;        /* amber-500 */
+      --shadow: 0 10px 30px rgba(0,0,0,.35);
+      --radius: 18px;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:Inter,system-ui,-apple-system,Segoe UI,Roboto,Helvetica,Arial,sans-serif;background:radial-gradient(1200px 600px at 80% -10%, rgba(34,211,238,.15), transparent),radial-gradient(1000px 500px at -10% 0%, rgba(96,165,250,.15), transparent), var(--bg);color:var(--text)}
+    a{color:var(--brand)}
+
+    .wrap{min-height:100svh;display:grid;place-items:center;padding:24px}
+    .card{width:min(980px,100%);background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));border:1px solid rgba(255,255,255,.08);box-shadow:var(--shadow);border-radius:var(--radius);overflow:hidden}
+    header{display:flex;align-items:center;justify-content:space-between;padding:18px 22px;background:rgba(17,24,39,.75);backdrop-filter: blur(10px);border-bottom:1px solid rgba(255,255,255,.06)}
+    header h1{font-size:18px;margin:0;letter-spacing:.3px}
+    header .tag{font-size:12px;color:var(--sub)}
+
+    .grid{display:grid;gap:20px;padding:24px}
+    .grid.cols-2{grid-template-columns:1.1fr .9fr}
+    .panel{background:rgba(17,24,39,.6);border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:18px}
+    .muted{color:var(--sub)}
+
+    .input{width:100%;padding:12px 14px;border:1px solid rgba(255,255,255,.1);border-radius:12px;background:#0b1220;color:var(--text);outline:none}
+    .row{display:flex;gap:12px;align-items:center}
+    .row.wrap{flex-wrap:wrap}
+    .btn{appearance:none;border:0;border-radius:14px;padding:12px 16px;background:linear-gradient(135deg,var(--brand),var(--brand-2));color:#001018;font-weight:700;cursor:pointer;box-shadow:0 8px 22px rgba(34,211,238,.25);transition:.2s transform ease}
+    .btn:hover{transform:translateY(-1px)}
+    .btn.ghost{background:transparent;color:var(--text);border:1px solid rgba(255,255,255,.12);box-shadow:none}
+    .btn.warn{background:linear-gradient(135deg,#f59e0b,#fbbf24);color:#1b1000}
+    .btn.ok{background:linear-gradient(135deg,#34d399,#10b981);color:#00180e}
+
+    .hidden{display:none !important}
+
+    /* Quiz UI */
+    .question{font-size:18px;line-height:1.5}
+    .options{display:grid;gap:10px;margin-top:14px}
+    .opt{display:flex;gap:12px;align-items:flex-start;padding:12px;border:1px solid rgba(255,255,255,.08);border-radius:12px;background:#0b1220;cursor:pointer}
+    .opt input{margin-top:4px}
+    .opt.correct{border-color:rgba(52,211,153,.5)}
+    .opt.wrong{border-color:rgba(248,113,113,.55)}
+
+    .toolbar{display:flex;justify-content:space-between;gap:10px;margin-top:16px}
+    .toolbar .left,.toolbar .right{display:flex;gap:10px;align-items:center}
+
+    .pill{font-size:12px;padding:6px 10px;border-radius:30px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.03);color:var(--sub)}
+
+    .nav{display:grid;grid-template-columns:repeat(auto-fit,minmax(36px,1fr));gap:8px}
+    .nav button{padding:8px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:#0b1220;color:var(--text);cursor:pointer}
+    .nav button.active{outline:2px solid var(--brand)}
+    .nav button.answered{background:rgba(34,211,238,.12)}
+    .nav button.review{background:rgba(245,158,11,.15)}
+
+    .score{font-size:28px;font-weight:800}
+
+    @media (max-width:900px){
+      .grid.cols-2{grid-template-columns:1fr}
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div class="card">
+      <header>
+        <h1>CBT Practice Portal <span class="tag">— Demo</span></h1>
+        <div class="row muted" id="userBadge" aria-live="polite"></div>
+      </header>
+
+      <!-- LOGIN VIEW -->
+      <section id="view-login" class="grid" aria-labelledby="login-title">
+        <div class="panel">
+          <h2 id="login-title" style="margin-top:0">Login</h2>
+          <p class="muted">Use the demo account below or create your own. Passwords are stored only in your browser (no server).</p>
+          <div class="grid" style="grid-template-columns:1fr 1fr;gap:16px">
+            <label>Username<br/>
+              <input id="login-username" class="input" placeholder="e.g. student01" autocomplete="username"/>
+            </label>
+            <label>Password<br/>
+              <input id="login-password" type="password" class="input" placeholder="••••" autocomplete="current-password"/>
+            </label>
+          </div>
+          <div class="row" style="margin-top:14px">
+            <button class="btn" id="btn-login">Sign In</button>
+            <button class="btn ghost" id="btn-register">Create Account</button>
+            <span class="pill">Demo: <strong>student</strong> / <strong>1234</strong></span>
+          </div>
+          <p id="login-msg" class="muted" role="status" style="margin-top:10px"></p>
+        </div>
+        <div class="panel">
+          <h3 style="margin:0 0 8px">Why login?</h3>
+          <ul class="muted" style="margin-top:6px;line-height:1.8">
+            <li>Track scores over time (saved offline to this device).</li>
+            <li>Resume where you left off.</li>
+            <li>Access multiple subjects and timed exams.</li>
+          </ul>
+        </div>
+      </section>
+
+      <!-- DASHBOARD VIEW -->
+      <section id="view-dashboard" class="grid hidden" aria-labelledby="dash-title">
+        <div class="panel">
+          <h2 id="dash-title" style="margin-top:0">Pick a Subject</h2>
+          <div class="row wrap" id="subjectList"></div>
+        </div>
+        <div class="panel">
+          <h3 style="margin:0 0 8px">Recent Scores</h3>
+          <div id="recentScores" class="muted">No attempts yet.</div>
+        </div>
+      </section>
+
+      <!-- EXAM VIEW -->
+      <section id="view-exam" class="grid cols-2 hidden" aria-labelledby="exam-title">
+        <div class="panel">
+          <div class="row" style="justify-content:space-between;align-items:flex-start">
+            <div>
+              <h2 id="exam-title" style="margin:0 0 4px">Exam</h2>
+              <div class="muted" id="examSubTitle">—</div>
+            </div>
+            <div class="row">
+              <span class="pill" id="timer">--:--</span>
+              <button class="btn ghost" id="btn-exit">Exit</button>
+            </div>
+          </div>
+          <hr style="border-color:rgba(255,255,255,.06);border-style:solid;border-width:1px 0 0;margin:14px 0"/>
+
+          <div id="questionArea">
+            <div class="question" id="qText">—</div>
+            <div class="options" id="qOptions"></div>
+            <div class="toolbar">
+              <div class="left">
+                <button class="btn ghost" id="btn-prev">Prev</button>
+                <button class="btn" id="btn-next">Next</button>
+              </div>
+              <div class="right">
+                <button class="btn warn" id="btn-flag">Mark for Review</button>
+                <button class="btn ok" id="btn-submit">Submit</button>
+              </div>
+            </div>
+          </div>
+        </div>
+        <aside class="panel">
+          <h3 style="margin:0 0 10px">Question Navigator</h3>
+          <div class="nav" id="qNav"></div>
+          <div class="row" style="margin-top:12px">
+            <span class="pill">Answered: <span id="stat-ans">0</span></span>
+            <span class="pill">Marked: <span id="stat-flag">0</span></span>
+            <span class="pill">Total: <span id="stat-total">0</span></span>
+          </div>
+        </aside>
+      </section>
+
+      <!-- RESULT VIEW -->
+      <section id="view-result" class="grid hidden" aria-labelledby="result-title">
+        <div class="panel">
+          <h2 id="result-title" style="margin:0">Results</h2>
+          <p class="muted" id="result-meta">—</p>
+          <div class="score" id="result-score">—</div>
+          <div id="result-breakdown" class="muted" style="margin-top:10px"></div>
+          <div class="row" style="margin-top:14px">
+            <button class="btn" id="btn-review">Review Answers</button>
+            <button class="btn ghost" id="btn-home">Back to Dashboard</button>
+          </div>
+        </div>
+        <div class="panel">
+          <h3 style="margin:0 0 8px">What next?</h3>
+          <ul class="muted" style="line-height:1.8">
+            <li>Retake the same subject to improve your score.</li>
+            <li>Try a different subject to broaden your practice.</li>
+            <li>Come back later — your attempts are saved locally.</li>
+          </ul>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <script>
+    /**
+     * Minimal single-file CBT trainer
+     * - Accounts stored in localStorage (username + salted hash)
+     * - Subjects & questions below; customize as needed
+     */
+
+    const demoSubjects = [
+      {
+        id: 'math',
+        name: 'Mathematics',
+        durationMin: 10,
+        questions: [
+          { t: 'What is 12 × 8?', opts: ['80','88','96','108'], ans: 2 },
+          { t: 'The mean of 5, 7, 9, 9 is…', opts: ['7.5','8','8.5','9'], ans: 1 },
+          { t: 'Solve for x: 3x + 5 = 20', opts: ['3','4','5','6'], ans: 1 },
+          { t: 'The area of a rectangle 6 by 9 is…', opts: ['15','30','45','54'], ans: 3 },
+          { t: 'Simplify: (a^2 · a^3)', opts: ['a^5','a^6','a^8','a^9'], ans: 0 },
+        ]
+      },
+      {
+        id: 'eng',
+        name: 'English',
+        durationMin: 8,
+        questions: [
+          { t: 'Choose the correct word: She has ____ apples.', opts: ['much','many','little','few'], ans: 1 },
+          { t: 'Pick the synonym of “rapid”.', opts: ['slow','quick','late','calm'], ans: 1 },
+          { t: 'The past tense of “go” is…', opts: ['goes','goed','went','gone'], ans: 2 },
+          { t: 'Which is a collective noun?', opts: ['beauty','flock','blue','under'], ans: 1 },
+        ]
+      },
+      {
+        id: 'sci',
+        name: 'Science',
+        durationMin: 9,
+        questions: [
+          { t: 'Water boils at what °C (at sea level)?', opts: ['50','90','100','120'], ans: 2 },
+          { t: 'The basic unit of life is the…', opts: ['atom','cell','tissue','organ'], ans: 1 },
+          { t: 'Plants make food by…', opts: ['osmosis','digestion','photosynthesis','respiration'], ans: 2 },
+          { t: 'Which gas do plants absorb?', opts: ['oxygen','hydrogen','nitrogen','carbon dioxide'], ans: 3 },
+        ]
+      }
+    ];
+
+    // ------------- Storage helpers -------------
+    const store = {
+      get(key, fallback){
+        try{ return JSON.parse(localStorage.getItem(key)) ?? fallback }catch{ return fallback }
+      },
+      set(key, val){ localStorage.setItem(key, JSON.stringify(val)) }
+    }
+
+    // Demo account bootstrap
+    if(!store.get('cbt_users')){
+      store.set('cbt_users', [{u:'student', p:hash('1234'), created:Date.now()}]);
+    }
+
+    function hash(s){
+      // super-light hash (NOT for production)
+      let h=0; for(let i=0;i<s.length;i++){h=((h<<5)-h)+s.charCodeAt(i);h|=0} return String(h)
+    }
+
+    let currentUser = store.get('cbt_currentUser', null);
+
+    // ------------- DOM refs -------------
+    const $ = sel => document.querySelector(sel);
+    const loginView = $('#view-login');
+    const dashView  = $('#view-dashboard');
+    const examView  = $('#view-exam');
+    const resultView= $('#view-result');
+
+    const msg = id => document.getElementById(id);
+
+    // ------------- Auth -------------
+    function show(view){
+      for(const v of [loginView,dashView,examView,resultView]) v.classList.add('hidden');
+      view.classList.remove('hidden');
+      updateUserBadge();
+    }
+
+    function updateUserBadge(){
+      const badge = $('#userBadge');
+      if(currentUser){
+        badge.innerHTML = `<span class="pill">Logged in as <strong>${currentUser}</strong></span>`;
+      }else{
+        badge.innerHTML = '';
+      }
+    }
+
+    function login(u, p){
+      const users = store.get('cbt_users', []);
+      const found = users.find(x=>x.u===u && x.p===hash(p));
+      if(found){
+        currentUser = u; store.set('cbt_currentUser', u); msg('login-msg').textContent='Login successful.'; loadDashboard(); show(dashView)
+      }else{
+        msg('login-msg').textContent='Invalid username or password.';
+      }
+    }
+    function register(u,p){
+      let users = store.get('cbt_users', []);
+      if(users.some(x=>x.u===u)) return msg('login-msg').textContent='Username already exists.'
+      if(!u || !p) return msg('login-msg').textContent='Enter a username and password.'
+      users.push({u, p:hash(p), created:Date.now()}); store.set('cbt_users', users);
+      msg('login-msg').textContent='Account created. You can sign in now.';
+    }
+
+    // ------------- Dashboard -------------
+    function loadDashboard(){
+      // subjects
+      const list = $('#subjectList');
+      list.innerHTML = '';
+      demoSubjects.forEach(s=>{
+        const b = document.createElement('button');
+        b.className='btn';
+        b.textContent=`${s.name} • ${s.questions.length} Qs`;
+        b.onclick=()=> startExam(s);
+        list.appendChild(b);
+      });
+
+      // recent scores
+      const attempts = store.get(`cbt_attempts_${currentUser}`, []);
+      const box = $('#recentScores');
+      if(!attempts.length){ box.textContent = 'No attempts yet.'; return }
+      box.innerHTML = '<ol style="margin:0;padding-left:18px">' + attempts.slice(-5).reverse().map(a=>{
+        const dt = new Date(a.time).toLocaleString();
+        return `<li>${a.subject} — <strong>${a.score}%</strong> (${a.correct}/${a.total}) <span class="muted">on ${dt}</span></li>`
+      }).join('') + '</ol>'
+    }
+
+    // ------------- Exam Engine -------------
+    let state = null; // exam runtime state
+
+    function shuffle(arr){ return arr.map(v=>[Math.random(),v]).sort((a,b)=>a[0]-b[0]).map(x=>x[1]) }
+
+    function startExam(subject){
+      const questions = shuffle(subject.questions).map((q, i)=>({
+        ...q,
+        id: i,
+        sel: null,
+        flag: false
+      }));
+      state = {
+        subjectId: subject.id,
+        subjectName: subject.name,
+        durationSec: subject.durationMin * 60,
+        start: Date.now(),
+        idx: 0,
+        questions,
+        timerId: null
+      };
+      $('#examSubTitle').textContent = `${subject.name} • ${questions.length} Questions • ${subject.durationMin} min`;
+      $('#stat-total').textContent = questions.length;
+      renderNav();
+      renderQuestion();
+      startTimer();
+      show(examView);
+    }
+
+    function startTimer(){
+      const end = state.start + state.durationSec*1000;
+      function tick(){
+        const left = Math.max(0, Math.floor((end - Date.now())/1000));
+        const m = String(Math.floor(left/60)).padStart(2,'0');
+        const s = String(left%60).padStart(2,'0');
+        $('#timer').textContent = `${m}:${s}`;
+        if(left===0){ clearInterval(state.timerId); submitExam() }
+      }
+      tick();
+      state.timerId = setInterval(tick, 500);
+    }
+
+    function renderQuestion(){
+      const q = state.questions[state.idx];
+      $('#qText').textContent = `Q${state.idx+1}. ${q.t}`;
+      const box = $('#qOptions'); box.innerHTML='';
+      q.opts.forEach((opt, i)=>{
+        const label = document.createElement('label');
+        label.className = 'opt' + (q.sel===i ? ' answered' : '');
+        label.innerHTML = `<input type="radio" name="opt" ${q.sel===i?'checked':''}/> <div>${opt}</div>`;
+        label.onclick = ()=>{ q.sel=i; renderNav(); };
+        box.appendChild(label);
+      });
+      updateStats();
+      highlightNav();
+    }
+
+    function renderNav(){
+      const nav = $('#qNav'); nav.innerHTML='';
+      state.questions.forEach((q, i)=>{
+        const b = document.createElement('button');
+        b.textContent = i+1;
+        b.className = (i===state.idx?'active ':'') + (q.sel!=null?' answered ':'') + (q.flag?' review ':'');
+        b.onclick = ()=>{ state.idx=i; renderQuestion(); };
+        nav.appendChild(b);
+      });
+      highlightNav();
+    }
+    function highlightNav(){
+      const children = Array.from($('#qNav').children);
+      children.forEach((btn,i)=>{ btn.classList.toggle('active', i===state.idx) })
+    }
+
+    function updateStats(){
+      const answered = state.questions.filter(q=>q.sel!=null).length;
+      const flagged  = state.questions.filter(q=>q.flag).length;
+      $('#stat-ans').textContent = answered;
+      $('#stat-flag').textContent = flagged;
+    }
+
+    function next(){ if(state.idx < state.questions.length-1){ state.idx++; renderQuestion() } }
+    function prev(){ if(state.idx > 0){ state.idx--; renderQuestion() } }
+    function toggleFlag(){ const q=state.questions[state.idx]; q.flag=!q.flag; renderNav(); updateStats(); }
+
+    function submitExam(){
+      // grade
+      const total = state.questions.length;
+      let correct = 0; state.questions.forEach(q=>{ if(q.sel===q.ans) correct++ });
+      const score = Math.round((correct/total)*100);
+      clearInterval(state.timerId);
+      // persist
+      const attemptsKey = `cbt_attempts_${currentUser}`;
+      const attempts = store.get(attemptsKey, []);
+      attempts.push({ time: Date.now(), subject: state.subjectName, score, correct, total });
+      store.set(attemptsKey, attempts);
+
+      // render result
+      $('#result-meta').textContent = `${state.subjectName} • ${total} Questions`;
+      $('#result-score').textContent = `${score}%`;
+      $('#result-breakdown').innerHTML = `
+        <div class="row">
+          <span class="pill">Correct: ${correct}</span>
+          <span class="pill">Wrong: ${total - correct}</span>
+          <span class="pill">Answered: ${state.questions.filter(q=>q.sel!=null).length}</span>
+        </div>`;
+
+      show(resultView);
+    }
+
+    function reviewMode(){
+      // Show explanations (if any) and highlight correctness
+      show(examView);
+      state.idx = 0; renderQuestion();
+      const box = $('#qOptions');
+      // decorate options
+      function decorate(){
+        const q = state.questions[state.idx];
+        const nodes = Array.from(box.children);
+        nodes.forEach((n,i)=>{
+          n.classList.remove('correct','wrong');
+          if(i===q.ans) n.classList.add('correct');
+          if(q.sel!=null && i===q.sel && q.sel!==q.ans) n.classList.add('wrong');
+        });
+      }
+      decorate();
+      // patch navigation to re-decorate on change
+      const oldRender = renderQuestion;
+      renderQuestion = function(){ oldRender(); decorate(); }
+    }
+
+    // ------------- Wire up -------------
+    $('#btn-login').onclick = ()=> login($('#login-username').value.trim(), $('#login-password').value);
+    $('#btn-register').onclick = ()=> register($('#login-username').value.trim(), $('#login-password').value);
+
+    $('#btn-prev').onclick = prev;
+    $('#btn-next').onclick = next;
+    $('#btn-flag').onclick = toggleFlag;
+    $('#btn-submit').onclick = submitExam;
+    $('#btn-exit').onclick = ()=>{ if(confirm('Exit exam? Progress will be lost.')){ clearInterval(state?.timerId); show(dashView); loadDashboard(); } };
+
+    $('#btn-review').onclick = reviewMode;
+    $('#btn-home').onclick = ()=>{ show(dashView); loadDashboard(); };
+
+    // ------------- Init -------------
+    if(currentUser){ loadDashboard(); show(dashView) } else { show(loginView) }
+
+    // Accessibility: allow keyboard arrows to navigate
+    document.addEventListener('keydown', e=>{
+      if(examView.classList.contains('hidden')) return;
+      if(e.key==='ArrowRight') next();
+      if(e.key==='ArrowLeft') prev();
+    })
+
+    // ------------- How to customize -------------
+    // 1) Add/edit subjects in demoSubjects above.
+    // 2) For each question: { t: 'text', opts: ['A','B','C','D'], ans: indexOfCorrect }
+    // 3) durationMin controls the exam timer.
+    // 4) Replace the simple hash() with a proper backend for real deployments.
+  </script>
+</body>
+</html>
